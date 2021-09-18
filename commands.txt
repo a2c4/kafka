@@ -1,0 +1,74 @@
+## Step1: Install Kafka
+https://www.digitalocean.com/community/tutorials/how-to-install-apache-kafka-on-ubuntu-20-04
+
+## Step2: Run kafka and check status (If fail check for errors)
+sudo systemctl start kafka
+sudo systemctl status kafka
+
+## Step3: Ensure all libs are installed mentioned in _global_imports.py
+
+## Step4: Ensure KAFKA_DIR and PROJECT_DIR_LOC constants are updated in _global_constants.py file.
+## (Optional: In case KAFKA host and port are over-ridden, do make necessary changes)
+
+## Step5: Define globals (Navigate to project dir and run below commands)
+
+source ./_global_constants.py
+KAFKA_TOPIC_NAME=${TOPIC_PREFIX}-kafka-topic
+## Delete/Create topic - $KAFKA_TOPIC_NAME
+$KAFKA_DIR/bin/kafka-topics.sh   --zookeeper localhost:2181   --delete --topic $KAFKA_TOPIC_NAME
+$KAFKA_DIR/bin/kafka-topics.sh   --zookeeper localhost:2181   --create --topic $KAFKA_TOPIC_NAME  --partitions 1   --replication-factor 1
+
+## Step6: Open 4 Linux terminals
+##        and at each terminal navigate to project dir
+##        and run below each set of commands at one terminal at a time (do it sequentially)
+1.
+## Run Kafka Consumer
+source ./_global_constants.py
+KAFKA_TOPIC_NAME=${TOPIC_PREFIX}-kafka-topic
+$KAFKA_DIR/bin/kafka-console-consumer.sh --bootstrap-server $KAFKA_SERVER:$KAFKA_PORT --topic $KAFKA_TOPIC_NAME --from-beginning
+2.
+## Run MQTT-Kakfa bridge
+source ./_global_constants.py
+python ${PROJECT_DIR_LOC}/mqtt_kafka_bridge.py
+3.
+## Run MQTT Publisher
+source ./_global_constants.py
+python ${PROJECT_DIR_LOC}/mqtt_publisher.py
+4.
+## Render webpage
+source ./_global_constants.py
+python ${PROJECT_DIR_LOC}/app.py
+
+## Step7: Go to browser and enter following URLS
+>> http://localhost:5000/
+>> http://localhost:5000/history
+
+## Step8: In case you wish to see database, run below command
+python ./read_from_database.py
+
+=========================================== END of STEPS ==============================================
+============================================ REFERENCES ===============================================
+## Debugging
+# Failure upon fatal error in kafka broker
+1. sudo systemctl daemon-reload
+2. Delete Logs ~/logs dir as this might be due to conflict in broker name
+
+## Helper commands
+# Console producer
+echo "Hello, World" | ~/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic TutorialTopic > /dev/null
+
+## Used References
+# Read recent events (used)
+https://pykafka.readthedocs.io/en/latest/usage.html
+# Connect mtqq client to kafka broker (used)
+https://www.youtube.com/watch?v=FDCTQ47oXUg&t=320s
+# Flask and readEvent (used)
+https://github.com/coderspage/flask-sse
+
+## Other References
+# Realtime Kafka maps
+https://medium.com/python-point/kafka-consumer-in-python-6cbc275a806
+# Flask and jQuery
+https://www.youtube.com/watch?v=vtiiO5I90Tc
+# Flask, jQuery and Ajax
+https://www.youtube.com/watch?v=FppvGEEv4l4

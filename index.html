@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latest 5 Records</title>
+</head>
+<body>
+  <h1>APP</h1>
+  <div id="data"></div>
+  <div id="counter"></div>
+
+  <script>
+    var eventSource = new EventSource("/history")
+
+    eventSource.addEventListener("message", function(e) {
+      console.log(e.data)
+    }, false)
+
+    eventSource.addEventListener("online", function(e) {
+      // console.log(e.data.color)
+      data = JSON.parse(e.data)
+      document.querySelector("#counter").innerText = data.counter
+      document.querySelector("#data").innerText = data.data
+    }, true)
+
+  </script>
+
+</body>
+</html>
